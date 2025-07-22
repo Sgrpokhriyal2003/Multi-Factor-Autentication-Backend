@@ -7,6 +7,7 @@ import morgan from 'morgan'
 import cors from 'cors'
 
 import connectDB from './src/config/db.js'
+import authRoute from './src/routes/auth.route.js'
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -38,6 +39,8 @@ app.get("/", (req, res) => {
         message: "welcome to 2 factor authentication system 🧑‍💻"
     })
 })
+
+app.use("/api/auth", authRoute);
 
 connectDB().then(() => {
     app.listen(PORT, () => {
