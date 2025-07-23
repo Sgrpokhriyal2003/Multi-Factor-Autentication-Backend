@@ -1,5 +1,8 @@
 import User from '../models/user.model.js'
 import bcrypt from 'bcryptjs';
+import speakeasy from 'speakeasy'
+import qrCode from 'qrcode'
+import jwt from 'jsonwebtoken'
 
 export const register = async(req, res) => {
     try{
@@ -123,8 +126,29 @@ export const authStatus = async(req, res) => {
 
 export const setup2FA = async(req, res) => {
     try{
-        
+        console.log("the request user is: ", req.user)
+        const user = req.user
 
+        let secret = speakeasy.generateSecret()
+        console.log("secret object is: ", secret)
+
+        user.twoFactorSecret = secret.base32
+        user.isMfaActive = true
+        await user.save()
+
+        const url = speakeasy.otpauthURL({
+            secret: secret.base32,
+            label: `${req.user.username}`,
+            issuer: "www.sgrpokhryal.com",
+            encoding: "base32"
+        })
+
+        const qrImageURL = await qrCode.toDataURL(url)
+        res.status(200).json({
+            secret: secret.base32,
+            qrCode: qrImageURL,
+            message: "mfa setup done!"
+        })
     }
     catch(error){
         console.log("error in setup2FA controller!");
@@ -137,7 +161,25 @@ export const setup2FA = async(req, res) => {
 
 export const verify2FA = async(req, res) => {
     try{
+        const {token} = req.body //send scan qr code one time password
+        const user = req.user
+        const verified = speakeasy.totp.verify({
+            secret: user.twoFactorSecret,
+            encoding: "base32",
+            token
+        })
 
+        if(verified){
+            const jwtToken = jwt.sign({username: user.username}, process.env.JWT_SECRET, {expiresIn: "1h"} )
+                res.status(200).json({
+                message: "2fa successfull",
+                token: jwtToken 
+            })
+        }else{
+            res.status(400).json({
+                message: "invalid 2fa token"
+            })
+        }
     }
     catch(error){
         console.log("error in verify2FA controller!");
@@ -151,7 +193,14 @@ export const verify2FA = async(req, res) => {
 
 export const reset2FA = async(req, res) => {
     try{
-
+        const user = req.user
+        user.twoFactorSecret = ""
+        user.isMfaActive = false
+        await user.save()
+        res.status(200).json({
+            message: "2fa reset successfully!",
+            userDetail: user
+        })
     }
     catch(error){
         console.log("error in reset2FA controller!");
