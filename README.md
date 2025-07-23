@@ -9,7 +9,7 @@
 - ✅ Password is hashed securely using bcryptjs before saving to MongoDB.
 - ✅ Users can log in using email and password.
 - ✅ Credentials are validated using bcryptjs.
-- ✅ If the user has 2FA enabled, login proceeds to MFA step
+- ✅ If the user has 1FA enabled, login proceeds to MFA step
 
 ## 2FA Setup with Speakeasy
 ---
