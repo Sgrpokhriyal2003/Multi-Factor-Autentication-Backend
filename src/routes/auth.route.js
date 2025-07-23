@@ -1,4 +1,6 @@
 import express from 'express'
+import passport from 'passport'
+
 const router = express.Router()
 
 import {
@@ -12,7 +14,7 @@ import {
 } from '../controller/auth.controller.js'
 
 router.post("/register", register)
-router.post("/login", login)
+router.post("/login",  passport.authenticate("local"), login)
 router.get("/status", authStatus)
 router.post("/logout", logout)
 

@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: [true, "username is required!"],
+        required: true,
         unique: true,
     },
 
     password: {
         type: String,
-        required: [true, "password is required!"]
+        required: true,
     },
 
     isMfaActive: {
@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
         type: String,
     }
 }, {timestamps: true})
+
+
+
 
 const User = mongoose.model("User", userSchema)
 export default User

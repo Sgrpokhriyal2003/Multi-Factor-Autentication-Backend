@@ -8,6 +8,7 @@ import cors from 'cors'
 
 import connectDB from './src/config/db.js'
 import authRoute from './src/routes/auth.route.js'
+import "./src/config/passport.js"
 
 const app = express()
 const PORT = process.env.PORT || 4000
